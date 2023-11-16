@@ -23,6 +23,6 @@ hook.Add "EntityTakeDamage", "Fall Damage Reverse", ( damageInfo ) =>
     if not entity\IsValid! or entity\GetMaxHealth! <= 1
         return
 
-    @SetVelocity -@GetVelocity! / 2
+    @SetVelocity -@GetVelocity! / 3
     entity\TakeDamageInfo( damageInfo )
     return true
