@@ -1,5 +1,6 @@
 DMG_FALL = DMG_FALL
 :TraceHull = util
+:abs, :min = math
 Vector = Vector
 :band = bit
 
@@ -9,7 +10,7 @@ hook.Add "EntityTakeDamage", "Fall Damage Reverse", ( damageInfo ) =>
 
     start, mins, maxs = @GetPos!, @GetHull!
     traceResult = TraceHull( {
-        endpos: start - Vector( 0, 0, maxs[ 3 ] / 2 )
+        endpos: start - Vector( 0, 0, maxs[ 3 ] )
         filter: @
         :start
         :mins
@@ -23,6 +24,11 @@ hook.Add "EntityTakeDamage", "Fall Damage Reverse", ( damageInfo ) =>
     if not entity\IsValid! or entity\GetMaxHealth! <= 1
         return
 
-    @SetVelocity -@GetVelocity! / 3
+    velocity = @GetVelocity!
+    @SetVelocity -velocity / 3
     entity\TakeDamageInfo( damageInfo )
+
+    fraction = min( 1, abs( velocity[ 3 ] ) / 3500 )
+    util.ScreenShake( entity\WorldSpaceCenter!, 15, 150, 0.25 + 1 * fraction, 128 + 256 * fraction )
+
     return true
