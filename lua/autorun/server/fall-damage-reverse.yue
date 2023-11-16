@@ -1,0 +1,28 @@
+DMG_FALL = DMG_FALL
+:TraceHull = util
+Vector = Vector
+:band = bit
+
+hook.Add "EntityTakeDamage", "Fall Damage Reverse", ( damageInfo ) =>
+    unless @IsPlayer! and band( damageInfo\GetDamageType!, DMG_FALL ) == DMG_FALL and damageInfo\GetAttacker! == @
+        return
+
+    start, mins, maxs = @GetPos!, @GetHull!
+    traceResult = TraceHull( {
+        endpos: start - Vector( 0, 0, maxs[ 3 ] / 2 )
+        filter: @
+        :start
+        :mins
+        :maxs
+    } )
+
+    unless traceResult.Hit
+        return
+
+    entity = traceResult.Entity
+    if not entity\IsValid! or entity\GetMaxHealth! <= 1
+        return
+
+    @SetVelocity -@GetVelocity! / 2
+    entity\TakeDamageInfo( damageInfo )
+    return true
