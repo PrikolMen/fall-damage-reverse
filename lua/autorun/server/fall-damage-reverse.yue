@@ -1,21 +1,24 @@
+:TraceHull, :ScreenShake = util
 DMG_FALL = DMG_FALL
-:TraceHull = util
 :abs, :min = math
 Vector = Vector
 :band = bit
+
+traceResult = {}
+trace = { output: traceResult }
+fraction = 0
 
 hook.Add "EntityTakeDamage", "Fall Damage Reverse", ( damageInfo ) =>
     unless @IsPlayer! and band( damageInfo\GetDamageType!, DMG_FALL ) == DMG_FALL and damageInfo\GetAttacker! == @
         return
 
-    start, mins, maxs = @GetPos!, @GetHull!
-    traceResult = TraceHull( {
-        endpos: start - Vector( 0, 0, maxs[ 3 ] )
-        filter: @
-        :start
-        :mins
-        :maxs
-    } )
+    mins, maxs = @GetHull!
+
+    trace.start = @GetPos!
+    trace.endpos = trace.start - Vector( 0, 0, maxs[ 3 ] )
+    trace.mins, trace.maxs = mins, maxs
+    trace.filter = @
+    TraceHull( trace )
 
     unless traceResult.Hit
         return
@@ -25,10 +28,10 @@ hook.Add "EntityTakeDamage", "Fall Damage Reverse", ( damageInfo ) =>
         return
 
     velocity = @GetVelocity!
-    @SetVelocity -velocity / 3
+    @SetVelocity( -velocity / 3 )
     entity\TakeDamageInfo( damageInfo )
 
     fraction = min( 1, abs( velocity[ 3 ] ) / 3500 )
-    util.ScreenShake( entity\WorldSpaceCenter!, 15, 150, 0.25 + 1 * fraction, 128 + 256 * fraction )
+    ScreenShake( entity\WorldSpaceCenter!, 15, 150, 0.25 + 1 * fraction, 128 + 256 * fraction )
 
     return true
